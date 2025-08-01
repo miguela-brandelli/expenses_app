@@ -51,7 +51,7 @@ class TransactionsForm extends StatelessWidget {
                   child: const Text(
                     'Nova Transação',
                     style: TextStyle(
-                      color: Color.fromARGB(255, 125, 3, 240),
+                      color: Colors.indigo,
                     ),
                   ),
                 )

@@ -1,3 +1,5 @@
+// ignore_for_file: use_super_parameters, sort_child_properties_last
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'components/transaction_form.dart';
@@ -14,10 +16,18 @@ class ExpensesApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: const MyHomePage(),
-      theme: tema.copyWith(
-        colorScheme: tema.colorScheme.copyWith(
-          primary: Color.fromARGB(255, 125, 3, 240),
-          secondary: Color.fromARGB(255, 255, 255, 255),
+      theme: ThemeData(
+        primarySwatch: Colors.grey,
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo),
+        fontFamily: 'MozillaHeadline',
+        appBarTheme: AppBarTheme(
+          titleTextStyle: const TextStyle(
+            fontFamily: 'MozillaHeadline',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.indigo,
+          ),
+          toolbarTextStyle: ThemeData.light().textTheme.bodyMedium,
         ),
       ),
     );
@@ -89,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             const SizedBox(
               child: Card(
-                color: Color.fromARGB(255, 125, 3, 240),
+                color: Colors.indigo,
                 child: Text('Gráfico'),
                 elevation: 5,
               ),
