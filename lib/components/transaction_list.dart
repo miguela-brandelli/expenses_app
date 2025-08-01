@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, sized_box_for_whitespace, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:expenses_app/models/transaction.dart';
@@ -9,9 +9,11 @@ class TransactionList extends StatelessWidget {
 
   TransactionList(this.transactions);
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
+@override
+Widget build(BuildContext context) {
+  return Container(
+    height: 300,
+    child: ListView(
       children: transactions.map((tr) {
         return Card(
           child: Row(
@@ -59,6 +61,7 @@ class TransactionList extends StatelessWidget {
           ),
         );
       }).toList(),
-    );
-  }
+    ),
+  );
+}
 }
