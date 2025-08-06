@@ -6,60 +6,97 @@ import 'package:intl/intl.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
+  final void Function(String) onRemove; 
+  final void Function(Transaction) onEdit; 
 
-  TransactionList(this.transactions);
+  TransactionList(this.transactions, this.onRemove, this.onEdit);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 300,
-      child: ListView.builder(
+      height: 540,
+      child: transactions.isEmpty ? Column(
+        children: <Widget>[
+          SizedBox(height: 20),
+          Text(
+            'Nenhuma transação cadastrada!',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          SizedBox(height: 20),
+          Container(
+            height: 100,
+            child: Image.asset('assets/images/waiting.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+        ] )
+        : ListView.builder(
         itemCount: transactions.length,
         itemBuilder: (ctx, index) {
           final tr = transactions[index];
           return Card(
-            child: Row(
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.indigo,
-                      width: 2,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(10),
-                  child: Text(
-                    'R\$ ${tr.value.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.indigo,
-                    ),
+            elevation: 5,
+            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+            child: ListTile(
+              leading: CircleAvatar(
+                radius: 30,
+                child: Padding(
+                  padding: const EdgeInsets.all(7.0),
+                  child: FittedBox(
+                    child: Text('R\$${tr.value.toStringAsFixed(2)}'),
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      tr.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      DateFormat('d MMM y').format(tr.date),
-                      style: const TextStyle(
-                        color: Colors.indigo,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
+              title: Text(
+                tr.title,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              subtitle: Text(
+                DateFormat('d MMM y').format(tr.date),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Ícone de edição
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    color: Theme.of(context).colorScheme.primary,
+                    onPressed: () => onEdit(tr),
+                  ),
+                  // Ícone de exclusão
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    color: Theme.of(context).colorScheme.error,
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Excluir Transação'),
+                            content: Text('Tem certeza que deseja excluir "${tr.title}"?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text('Cancelar'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  onRemove(tr.id);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(
+                                  'Excluir',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           );
         },
