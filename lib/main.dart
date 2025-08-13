@@ -1,13 +1,13 @@
-// ignore_for_file: use_super_parameters, sort_child_properties_last, prefer_const_constructors
+// ignore_for_file: use_super_parameters, sort_child_properties_last, prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
 
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'dart:math';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'components/transaction_form.dart';
 import 'components/transaction_list.dart';
 import 'components/chart.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-
 
 import 'models/transaction.dart';
 
@@ -65,9 +65,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _transactions = [
-    
-  ];
+  final List<Transaction> _transactions = [];
+  bool _showChart = false;
 
   List<Transaction> get _recentTransactions {
     return _transactions.where((tr) {
@@ -98,7 +97,8 @@ class _MyHomePageState extends State<MyHomePage> {
     _openTransactionFormModal(context, transactionToEdit: transaction);
   }
 
-  void _updateTransaction(String title, double value, DateTime date, String id) {
+  void _updateTransaction(
+      String title, double value, DateTime date, String id) {
     setState(() {
       final index = _transactions.indexWhere((tr) => tr.id == id);
       if (index >= 0) {
@@ -118,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _transactions.removeWhere((transaction) => transaction.id == id);
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Transação removida com sucesso!'),
@@ -128,14 +128,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _openTransactionFormModal(BuildContext context, {Transaction? transactionToEdit}) {
+  _openTransactionFormModal(BuildContext context,
+      {Transaction? transactionToEdit}) {
     showModalBottomSheet(
       context: context,
       builder: (_) {
         if (transactionToEdit != null) {
-          // Modo edição - função que atualiza
           return TransactionsForm(
-            (title, value, date) => _updateTransaction(title, value, date, transactionToEdit.id),
+            (title, value, date) =>
+                _updateTransaction(title, value, date, transactionToEdit.id),
             transactionToEdit: transactionToEdit,
           );
         } else {
@@ -148,22 +149,58 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appBar = AppBar(
+      title: Text('Despesas Pessoais',
+          style: TextStyle(
+              fontSize: 10 * MediaQuery.textScalerOf(context).scale(2))),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _openTransactionFormModal(context),
+        ),
+      ],
+    );
+    final availableHeight =
+        MediaQuery.of(context).size.height - appBar.preferredSize.height;
+    -MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Despesas Pessoais'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openTransactionFormModal(context),
-          ),
-        ],
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_hasRecentTransactions) Chart(_recentTransactions),
-            TransactionList(_transactions, _removeTransaction, _editTransaction),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Exibir Gráfico'),
+                Switch(
+                  value: _showChart,
+                  onChanged: (value) {
+                    setState(() {
+                      _showChart = value;
+                    });
+                  },
+                  activeColor: 
+                      Colors.indigo,
+                  activeTrackColor:
+                      Colors.indigo[100], 
+                  inactiveThumbColor:
+                      Colors.grey, 
+                  inactiveTrackColor:
+                      Colors.grey[300],
+                ),
+              ],
+            ),
+            _showChart
+                ? Container(
+                    height: availableHeight * 0.3,
+                    child: Chart(_recentTransactions))
+                : Container(
+                    height: availableHeight * 0.5,
+                    child: TransactionList(
+                        _transactions, _removeTransaction, _editTransaction),
+                  ),
           ],
         ),
       ),
