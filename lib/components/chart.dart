@@ -1,37 +1,34 @@
-// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors_in_immutables, prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import 'chart_bar.dart';
 
 class Chart extends StatelessWidget {
-  final List<Transaction> recentTransactions;
+  final List<Transaction> recentTransaction;
 
-  Chart(this.recentTransactions);
+  const Chart(this.recentTransaction, {super.key});
 
   List<Map<String, Object>> get groupedTransactions {
     return List.generate(7, (index) {
-      final weekDay = DateTime.now().subtract(Duration(days: index));
+      final weekDay = DateTime.now().subtract(
+        Duration(days: index),
+      );
 
-      DateFormat.E().format(weekDay)[0].toUpperCase();
+      double totalSum = 0.0;
 
-      double totaSum = 0.0;
+      for (var i = 0; i < recentTransaction.length; i++) {
+        bool sameDay = recentTransaction[i].date.day == weekDay.day;
+        bool sameMonth = recentTransaction[i].date.month == weekDay.month;
+        bool sameYear = recentTransaction[i].date.year == weekDay.year;
 
-      for (var i = 0; i < recentTransactions.length; i++) {
-        bool sameDay = recentTransactions[i].date.day == weekDay.day &&
-            recentTransactions[i].date.month == weekDay.month &&
-            recentTransactions[i].date.year == weekDay.year;
-
-        if (sameDay) {
-          totaSum += recentTransactions[i].value;
+        if (sameDay && sameMonth && sameYear) {
+          totalSum += recentTransaction[i].value;
         }
       }
 
       return {
-        'day': DateFormat.E('pt_BR').format(weekDay).substring(0, 1).toUpperCase() +
-            DateFormat.E('pt_BR').format(weekDay).substring(1),
-        'value': totaSum
+        'day': DateFormat.E().format(weekDay)[0],
+        'value': totalSum,
       };
     }).reversed.toList();
   }
@@ -46,7 +43,7 @@ class Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 6,
-      margin: const EdgeInsets.all(10),
+      margin: const EdgeInsets.all(20),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Row(
@@ -57,7 +54,9 @@ class Chart extends StatelessWidget {
               child: ChartBar(
                 label: tr['day'] as String,
                 value: tr['value'] as double,
-                percentage: (tr['value'] as double) / _weekTotalValue,
+                percentage: _weekTotalValue == 0
+                    ? 0
+                    : (tr['value'] as double) / _weekTotalValue,
               ),
             );
           }).toList(),

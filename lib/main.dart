@@ -69,8 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _showChart = false;
 
   List<Transaction> get _recentTransactions {
+    final today = DateTime.now();
+    final sevenDaysAgo = DateTime(today.year, today.month, today.day - 6);
+
     return _transactions.where((tr) {
-      return tr.date.isAfter(DateTime.now().subtract(Duration(days: 7)));
+      final trDate = DateTime(tr.date.year, tr.date.month, tr.date.day);
+      return trDate.isAfter(sevenDaysAgo.subtract(Duration(days: 1)));
     }).toList();
   }
 
@@ -149,6 +153,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    bool isLandscape = mediaQuery.orientation == Orientation.landscape;
+
     final appBar = AppBar(
       title: Text('Despesas Pessoais',
           style: TextStyle(
@@ -158,49 +165,72 @@ class _MyHomePageState extends State<MyHomePage> {
           icon: const Icon(Icons.add),
           onPressed: () => _openTransactionFormModal(context),
         ),
+        if (isLandscape)
+          IconButton(
+            icon: Icon(_showChart ? Icons.list : Icons.show_chart),
+            onPressed: () {
+              setState(() {
+                _showChart = !_showChart;
+              });
+            },
+          ),
       ],
     );
-    final availableHeight =
-        MediaQuery.of(context).size.height - appBar.preferredSize.height;
-    -MediaQuery.of(context).padding.top;
+    final availableHeight = mediaQuery.size.height -
+        appBar.preferredSize.height -
+        mediaQuery.padding.top;
 
     return Scaffold(
       appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Exibir Gráfico'),
-                Switch(
-                  value: _showChart,
-                  onChanged: (value) {
-                    setState(() {
-                      _showChart = value;
-                    });
-                  },
-                  activeColor: 
-                      Colors.indigo,
-                  activeTrackColor:
-                      Colors.indigo[100], 
-                  inactiveThumbColor:
-                      Colors.grey, 
-                  inactiveTrackColor:
-                      Colors.grey[300],
-                ),
-              ],
-            ),
-            _showChart
-                ? Container(
-                    height: availableHeight * 0.3,
-                    child: Chart(_recentTransactions))
-                : Container(
-                    height: availableHeight * 0.5,
-                    child: TransactionList(
-                        _transactions, _removeTransaction, _editTransaction),
-                  ),
+          children: <Widget>[
+            // if (isLandscape)
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     Text('Exibir Gráfico'),
+            //     Switch(
+            //       value: _showChart,
+            //       onChanged: (value) {
+            //         setState(() {
+            //           _showChart = value;
+            //         });
+            //       },
+            //       activeColor:
+            //           Colors.indigo,
+            //       activeTrackColor:
+            //           Colors.indigo[100],
+            //       inactiveThumbColor:
+            //           Colors.grey,
+            //       inactiveTrackColor:
+            //           Colors.grey[300],
+            //     ),
+            //   ],
+            // ),
+            if (isLandscape) ...[
+              _showChart
+                  ? Container(
+                      height: availableHeight * 0.5,
+                      child: Chart(_recentTransactions),
+                    )
+                  : Container(
+                      height: availableHeight * 0.5,
+                      child: TransactionList(
+                          _transactions, _removeTransaction, _editTransaction),
+                    ),
+            ] else ...[
+              Container(
+                height: availableHeight * 0.3,
+                child: Chart(_recentTransactions),
+              ),
+              Container(
+                height: availableHeight * 0.5,
+                child: TransactionList(
+                    _transactions, _removeTransaction, _editTransaction),
+              ),
+            ]
           ],
         ),
       ),

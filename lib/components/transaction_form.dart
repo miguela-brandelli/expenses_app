@@ -6,7 +6,7 @@ import '../models/transaction.dart';
 
 class TransactionsForm extends StatefulWidget {
   final void Function(String, double, DateTime) onSubmit;
-  final Transaction? transactionToEdit; 
+  final Transaction? transactionToEdit;
 
   TransactionsForm(this.onSubmit, {this.transactionToEdit});
 
@@ -17,7 +17,7 @@ class TransactionsForm extends StatefulWidget {
 class _TransactionsFormState extends State<TransactionsForm> {
   final titleController = TextEditingController();
   final valueController = TextEditingController();
-  final _dateController = TextEditingController(); 
+  final _dateController = TextEditingController();
   DateTime? _selectedDate;
 
   @override
@@ -33,11 +33,19 @@ class _TransactionsFormState extends State<TransactionsForm> {
   }
 
   void _showDatePicker() async {
+    final now = DateTime.now();
+
+    // Calcula o limite inferior: 7 dias atrás, mas nunca antes do 1º dia do mês
+    final sevenDaysAgo = now.subtract(Duration(days: 7));
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final minDate =
+        sevenDaysAgo.isBefore(firstDayOfMonth) ? firstDayOfMonth : sevenDaysAgo;
+
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      initialDate: _selectedDate ?? now,
+      firstDate: minDate, // mínimo permitido
+      lastDate: now, // máximo é hoje
     );
 
     if (pickedDate != null) {
@@ -52,7 +60,7 @@ class _TransactionsFormState extends State<TransactionsForm> {
   void dispose() {
     titleController.dispose();
     valueController.dispose();
-    _dateController.dispose(); 
+    _dateController.dispose();
     super.dispose();
   }
 
@@ -79,16 +87,16 @@ class _TransactionsFormState extends State<TransactionsForm> {
     valueController.clear();
     _dateController.clear();
     setState(() {
-      _selectedDate = null; 
+      _selectedDate = null;
     });
 
     // Remove o foco dos campos
     FocusScope.of(context).unfocus();
 
-    final message = widget.transactionToEdit != null 
-        ? 'Transação editada com sucesso!' 
+    final message = widget.transactionToEdit != null
+        ? 'Transação editada com sucesso!'
         : 'Transação adicionada com sucesso!';
-        
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -130,7 +138,7 @@ class _TransactionsFormState extends State<TransactionsForm> {
                 prefixText: 'R\$ ',
               ),
             ),
-            SizedBox(height: 10), 
+            SizedBox(height: 10),
             TextField(
               controller: _dateController,
               readOnly: true,
@@ -161,8 +169,8 @@ class _TransactionsFormState extends State<TransactionsForm> {
                     backgroundColor: Colors.indigo,
                     foregroundColor: Colors.white,
                   ),
-                  child: Text(widget.transactionToEdit != null 
-                      ? 'Salvar Alterações' 
+                  child: Text(widget.transactionToEdit != null
+                      ? 'Salvar Alterações'
                       : 'Adicionar Transação'),
                 ),
               ],
