@@ -1,42 +1,39 @@
 // ignore_for_file: use_super_parameters, sort_child_properties_last, prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'components/transaction_form.dart';
+import 'ui/widgets/transaction_form.dart';
 import 'components/transaction_list.dart';
-import 'components/chart.dart';
+import 'ui/widgets/chart.dart';
 import 'models/transaction.dart';
 
-
 void main() {
-  initializeDateFormatting().then((_) => runApp(ExpensesApp()));
+  initializeDateFormatting().then((_) => runApp(const ExpensesApp()));
 }
 
 class ExpensesApp extends StatelessWidget {
-  ExpensesApp({Key? key}) : super(key: key);
-  final ThemeData tema = ThemeData();
+  const ExpensesApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: const MyHomePage(),
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        const Locale('pt', 'BR'),
+      supportedLocales: const [
+        Locale('pt', 'BR'),
       ],
       theme: ThemeData(
         primarySwatch: Colors.grey,
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.indigo),
         fontFamily: 'MozillaHeadline',
         textTheme: ThemeData.light().textTheme.copyWith(
-              titleMedium: TextStyle(
+              titleMedium: const TextStyle(
                 fontFamily: 'MozillaHeadline',
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -70,17 +67,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<Transaction> get _recentTransactions {
     final today = DateTime.now();
-    final sevenDaysAgo = DateTime(today.year, today.month, today.day - 6);
+    final sevenDaysAgo = today.subtract(const Duration(days: 6));
 
     return _transactions.where((tr) {
       final trDate = DateTime(tr.date.year, tr.date.month, tr.date.day);
-      return trDate.isAfter(sevenDaysAgo.subtract(Duration(days: 1)));
+      return trDate.isAfter(sevenDaysAgo.subtract(const Duration(days: 1)));
     }).toList();
   }
 
-  _addTransaction(String title, double value, DateTime date) {
+  void _addTransaction(String title, double value, DateTime date) {
     final newTransaction = Transaction(
-      id: Random().nextDouble().toString(),
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       value: value,
       date: date,
@@ -120,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Transação removida com sucesso!'),
         backgroundColor: Colors.orange,
         duration: Duration(seconds: 2),
@@ -128,9 +125,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  _openTransactionFormModal(BuildContext context,
+  void _openTransactionFormModal(BuildContext context,
       {Transaction? transactionToEdit}) {
     showModalBottomSheet(
+      isScrollControlled: true, // permite abrir melhor com teclado
       context: context,
       builder: (_) {
         if (transactionToEdit != null) {
@@ -140,7 +138,6 @@ class _MyHomePageState extends State<MyHomePage> {
             transactionToEdit: transactionToEdit,
           );
         } else {
-          // Modo criação - função que adiciona
           return TransactionsForm(_addTransaction);
         }
       },
@@ -150,12 +147,26 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    bool isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
 
     final appBar = AppBar(
-      title: Text('Despesas Pessoais',
-          style: TextStyle(
-              fontSize: 10 * MediaQuery.textScalerOf(context).scale(2))),
+      leading: Container(
+        padding: const EdgeInsets.fromLTRB(10.0, 8.0, 0.0, 8.0),
+        child: Image.asset(
+          'assets/images/app_icon.ico',
+          width: 40,
+          height: 40,
+          fit: BoxFit.contain,
+        ),
+      ),
+      title: Text(
+        'Despesas Pessoais',
+        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontFamily: 'MozillaHeadline',
+              fontWeight: FontWeight.bold,
+              color: Colors.indigo,
+            ),
+      ),
       actions: [
         IconButton(
           icon: const Icon(Icons.add),
@@ -172,6 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
       ],
     );
+
     final availableHeight = mediaQuery.size.height -
         appBar.preferredSize.height -
         mediaQuery.padding.top;
@@ -184,21 +196,21 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             if (isLandscape) ...[
               _showChart
-                  ? Container(
+                  ? SizedBox(
                       height: availableHeight * 0.5,
                       child: Chart(_recentTransactions),
                     )
-                  : Container(
+                  : SizedBox(
                       height: availableHeight * 0.5,
                       child: TransactionList(
                           _transactions, _removeTransaction, _editTransaction),
                     ),
             ] else ...[
-              Container(
+              SizedBox(
                 height: availableHeight * 0.3,
                 child: Chart(_recentTransactions),
               ),
-              Container(
+              SizedBox(
                 height: availableHeight * 0.5,
                 child: TransactionList(
                     _transactions, _removeTransaction, _editTransaction),

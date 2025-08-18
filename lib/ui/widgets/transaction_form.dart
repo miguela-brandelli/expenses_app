@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/transaction.dart';
+import '../../models/transaction.dart';
 
 class TransactionsForm extends StatefulWidget {
   final void Function(String, double, DateTime) onSubmit;
