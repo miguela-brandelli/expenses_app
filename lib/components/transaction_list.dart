@@ -80,7 +80,7 @@ class TransactionList extends StatelessWidget {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: Text('Excluir Transação'),
+                                title: const Text('Excluir Transação'),
                                 content: Text(
                                     'Tem certeza que deseja excluir "${tr.title}"?'),
                                 actions: [

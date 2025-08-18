@@ -8,8 +8,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'components/transaction_form.dart';
 import 'components/transaction_list.dart';
 import 'components/chart.dart';
-
 import 'models/transaction.dart';
+
 
 void main() {
   initializeDateFormatting().then((_) => runApp(ExpensesApp()));
@@ -76,10 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
       final trDate = DateTime(tr.date.year, tr.date.month, tr.date.day);
       return trDate.isAfter(sevenDaysAgo.subtract(Duration(days: 1)));
     }).toList();
-  }
-
-  bool get _hasRecentTransactions {
-    return _recentTransactions.isNotEmpty;
   }
 
   _addTransaction(String title, double value, DateTime date) {
@@ -186,29 +182,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // if (isLandscape)
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     Text('Exibir Gráfico'),
-            //     Switch(
-            //       value: _showChart,
-            //       onChanged: (value) {
-            //         setState(() {
-            //           _showChart = value;
-            //         });
-            //       },
-            //       activeColor:
-            //           Colors.indigo,
-            //       activeTrackColor:
-            //           Colors.indigo[100],
-            //       inactiveThumbColor:
-            //           Colors.grey,
-            //       inactiveTrackColor:
-            //           Colors.grey[300],
-            //     ),
-            //   ],
-            // ),
             if (isLandscape) ...[
               _showChart
                   ? Container(
