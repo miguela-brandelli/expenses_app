@@ -5,7 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'ui/widgets/transaction_form.dart';
-import 'components/transaction_list.dart';
+import 'ui/widgets/transaction_list.dart';
 import 'ui/widgets/chart.dart';
 import 'models/transaction.dart';
 
@@ -61,9 +61,20 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final List<Transaction> _transactions = [];
   bool _showChart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   List<Transaction> get _recentTransactions {
     final today = DateTime.now();
@@ -168,9 +179,20 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: () => _openTransactionFormModal(context),
+        Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: GestureDetector(
+            onTap: () => _openTransactionFormModal(context),
+            child: CircleAvatar(
+              backgroundColor: Colors.indigo,
+              radius: 20,
+              child: const Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
         ),
         if (isLandscape)
           IconButton(
@@ -211,7 +233,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Chart(_recentTransactions),
               ),
               SizedBox(
-                height: availableHeight * 0.5,
+                height: availableHeight * 0.7,
                 child: TransactionList(
                     _transactions, _removeTransaction, _editTransaction),
               ),
